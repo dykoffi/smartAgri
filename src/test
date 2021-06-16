@@ -1,0 +1,67 @@
+import React, { useEffect, useState } from "react"
+import io from "socket.io-client"
+import * as d3 from "d3"
+
+const App = () => {
+  const [data, setData] = useState([])
+
+  useEffect(() => {
+    let socket = io("http://localhost:8080", {
+      withCredentials: true,
+    });
+
+    socket.on("data", (d) => {
+      setData([d])
+    })
+
+
+    let color = d3.scaleLinear()
+      .domain([0, 10])
+      .range(["red", "blue"])
+
+    let barScale = d3.scaleLinear([0, 10], [0, 700])
+    
+    d3
+      .select("#humidite")
+      .data(data)
+      .select("div")
+      .style("position", "absolute")
+      .style("width", "6cm")
+      .style("color", "white")
+      .style("font-size", "60px")
+      // .style("font-weight", "bold")
+      .style("text-align", "center")
+      .style("bottom", 0)
+      .transition().duration(1000)
+      .text(d => d !== 0 ? d : "")
+      .style("height", (d, i) => barScale(d) + "px")
+      .style("margin-bottom", "50px")
+      .style("background-color", (d, i) => color(d))
+    // div
+    //   .data(data)
+    //   .append("div")
+    //   .selectAll("div")
+    //   .style("width", "7cm")
+    //   .style("bottom", 0)
+    //   .style("height", 0)
+    //   .style("background-color", (d, i) => color(d))
+    //   .style("position", "absolute")
+    //   .transition()
+    //   .duration(500)
+    //   .style("height", (d, i) => barScale(d) + "px")
+
+    return () => {
+      socket.disconnect()
+    }
+  })
+
+  return (
+    <div className="App h-screen bg-black p-4">
+      <div className="h-3" id="humidite">
+        <div id="tube"></div>
+      </div>
+    </div>
+  );
+}
+
+export default App;

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>app_voice_smart_agri</title>
+</head>
+<body>
+	<p>Bienvenue sur le site de l'application vocal de smart agri.<br></p>
+	<textarea id="texte"></textarea>
+	<button id="start">START</button>
+	<button id="stop">STOP</button>
+	<p id="res" style="color: green;"></p>
+	<b>liste des codes et leurs actions:</b>
+	<ul>
+		<li>a001: Alume la lumière</li>
+		<li>a002: éteint la lumière</li>
+		<li>a003: Lance l'arrosage</li>
+		<li>a004: coupe l'arrosage</li>
+	</ul>
+
+
+	<script>
+		var btnstart = document.getElementById("start");
+		var btnstop = document.getElementById("stop");
+		var inputText = document.getElementById("texte");
+		var res = document.getElementById("res");
+
+
+		var reconnaissance = new (window.webkitSpeechRecognition)();
+
+		reconnaissance.lang = 'fr-FR';
+		reconnaissance.continuous = true;
+
+		btnstart.onclick = function(){
+			reconnaissance.start();
+		}
+
+		btnstop.onclick = function(){
+			reconnaissance.stop();
+		} 
+
+		// Liste des mots à entendre pour couper la lumière
+		var stop_ampoule = /(couper l'ampoule)|(éteindre l'ampoule)|(arrêter l'ampoule)|(stopper l'ampoule)|(coupe l'ampoule)|(arrête l'ampoule)|(éteins l'ampoule)|(éteins la lumière)|(stoppe l'ampoule)|(stoppe la lumière)|(stoppe l'ampoule)/ig;
+
+		// Liste des mots à entendre pour allumer la lumière
+		var start_ampoule = /(démarrer l'ampoule)|(allumer l'ampoule)|(lancer l'ampoule)|(démarre l'ampoule)|(allume l'ampoule)|(lance l'ampoule)|ampoule|lumière|(la lumière)|(l'ampoule)/ig;
+
+		// Liste des mots à entendre pour couper l'arrosage
+		var stop_arrosage = /(couper l'arrosage)|(éteindre l'arrosage)|(arrêter l'arrosage)|(stopper l'arrosage)|(coupe l'arrosage)|(éteins l'arrosage)|(arrête l'arrosage)|(stoppe l'arrosage)/ig;
+
+		// Liste des mots à entendre pour lancer l'arrosage
+		var start_arrosage = /(démarrer l'arrosage)|(commencer l'arrosage)|(démarre l'arrosage)|(commence l'arrosage)|arrosage|tuyau|(l'arrosage)/ig;
+
+		// Fonction de traintement ***********************************************************
+		reconnaissance.onresult = function(event){
+			tt = event.results[0][0].transcript;
+
+			inputText.value = tt;
+			if (stop_ampoule.test(tt)) {
+				res.innerHTML = "a002";
+			}else if(start_ampoule.test(tt)){
+				res.innerHTML = "a001";
+			}else if(stop_arrosage.test(tt)){
+				res.innerHTML = "a004";
+			}else if(start_arrosage.test(tt)){
+				res.innerHTML = "a003";
+			}else{
+				res.innerHTML = "Désolé je ne vous comprend pas"
+			}
+		}
+		//************************************************************************************
+
+
+	</script>
+</body>
+</html>

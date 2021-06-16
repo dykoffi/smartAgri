@@ -1,0 +1,73 @@
+import React, { useEffect, useState } from "react"
+import lightON from './lightON.jpg'
+import lightOFF from './lightOFF.jpg'
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
+
+import "./functions/graph"
+
+const App = () => {
+  const { transcript } = useSpeechRecognition()
+  const [listen, setListen] = useState(false)
+
+  function goListen() {
+    if (!listen) {
+      SpeechRecognition.startListening({ language: "fr-FR" }).then(() => {
+        setListen(true)
+      })
+    } else {
+      SpeechRecognition.stopListening().then(() => {
+        setListen(false)
+      })
+    }
+
+  }
+
+  function speak(text) {
+    let speaker = new SpeechSynthesisUtterance(text);
+    const synth = window.speechSynthesis;
+    let voices = synth.getVoices()
+    let vFR = voices.filter(v => v.lang.match(/fr/))
+
+    speaker.voice = vFR[119]
+    speaker.rate = 0.75
+    speaker.lang = "fr-FR"
+
+    synth.speak(speaker)
+  }
+  useEffect(() => {
+
+  })
+  return (
+    <div className="App flex h-screen bg-black">
+      <div className=" h-screen p-4 grid gap-4 grid-cols-3" style={{ flex: 3 }} id="data">
+        <div className="opacity-30 bg-blue-400">
+          <svg id="niveau"></svg>
+        </div>
+        <div className="opacity-30 bg-green-500"></div>
+        <div className="opacity-30 bg-purple-400"></div>
+        <div className="opacity-30 bg-red-400"></div>
+        <div className="opacity-30 bg-yellow-600"></div>
+        <div className="opacity-30 bg-blue-900"></div>
+      </div>
+      <div className="h-screen p-4 grid grid-cols-1 gap-4" style={{ flex: 1 }} id="action">
+        <div className="flex items-center justify-center">
+          <img src={lightON} alt="" />
+          <div id="test"><p></p></div>
+        </div>
+        <div className="flex flex-col items-center justify-center">
+          <div className="h-24 w-24 rounded-full bg-red-400 flex items-center justify-center">
+            <div onClick={goListen} className={`cursor-pointer h-20 w-20 rounded-full bg-white ${listen && 'animate-pulse'}`}></div>
+          </div>
+          <h3 className="text-white text-sm mt-4">{listen ? "Dites quelques chose" : "Appuyer pour parler"}</h3>
+        </div>
+        <div className="">
+          <h1 className="text-xl font-serif font-black text-white text-center">
+            {transcript}
+          </h1>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
