@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react"
 import { humiditeAir, humiditeSol, niveau, luminosite, socket, temperature } from "./functions/graph"
 import logoS from "./logo.jpg"
 import { ask } from './functions/comm'
+import html2canvas from 'html2canvas';
+
 
 const App = () => {
   const [listen, setListen] = useState(false)
@@ -84,6 +86,24 @@ const App = () => {
       recon.stop()
     }
   })
+
+
+  function screenShot() {
+    const iframe = document.getElementsByTagName('iframe');
+    const screen = iframe[0]?.contentDocument?.body;
+
+    html2canvas(screen)
+      .then((canvas) => {
+        const base64image = canvas.toDataURL('image/png');
+
+        //  Enregistrement de l'image
+        //  Appel à l'API 
+        //  Fonction à exécuter à la recption de la réponse 
+
+
+      });
+  }
+
 
 
   function goListen() {
@@ -224,6 +244,9 @@ const App = () => {
           <iframe src="http://192.168.43.231:8081" height="350" width="300"></iframe>
         }
 
+      </div>
+      <div>
+        <button onClick={screenShot()}>Capture</button>
       </div>
       <div className="h-screen p-4 grid grid-cols-1 gap-10" style={{ flex: 1 }} id="action">
         {/* <img src={logoS} alt="" className="h-20 w-20" /> */}
