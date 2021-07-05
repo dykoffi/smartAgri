@@ -1,17 +1,17 @@
 export function ask(text, data) {
-    if (/informations sur la plante/.test(text)) {
+    if (/informations sur la culture/.test(text)) {
         return `
-        Les informations de la plante sont.
-        Stade de la culture. 16 eme jour.
+        Les informations sur la culture sont.
+        Stade. 32 eme jour.
         Type de culture. tomate.
-        Variété de la culture. tomate cérise.
+        Variété. tomate cérise.
         Etat de santé. bon.
-        Type de port. croissance determinée.
+        Type de plan. croissance determinée.
        `
     } else if (/(quelles sont les)? ?(conditions) (météorologiques|météo)/.test(text)) {
         return `
         Les conditions météorologiques sont.
-        Température . 27 dégré celcus.
+        Température . 27 dégré celsius.
         Humidité du sol. 52%.
         Humidité de l'air. 63%.
         Luminosité. 152 lux.

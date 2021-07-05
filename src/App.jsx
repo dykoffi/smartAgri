@@ -2,38 +2,38 @@ import React, { useEffect, useState } from "react"
 import { humiditeAir, humiditeSol, niveau, luminosite, socket, temperature } from "./functions/graph"
 import logoS from "./logo.jpg"
 import { ask } from './functions/comm'
+import Webcam from "react-webcam"
 
 const App = () => {
   const [listen, setListen] = useState(false)
   const [camera, setCamera] = useState(false)
-  const [arrosage, setArrosage] = useState(false)
   const [transcript, settranscript] = useState(false)
   const [recon, setrecon] = useState(new (window.webkitSpeechRecognition)())
   const [speaker, setspeaker] = useState(window.speechSynthesis)
   const [utterThis, setutterThis] = useState(new SpeechSynthesisUtterance())
-  // const [data, setData] = useState({})
+  const [data, setData] = useState({})
+  const videoConstraints = {
+    width: 1050,
+    height: 1500,
+    facingMode: "user"
+  };
 
   useEffect(() => {
     socket.emit("begin")
     socket.on("e", d => {
       niveau(d);
-      // setData({ ...data, e: d })
     })
     socket.on("h", d => {
       humiditeAir(d);
-      // setData({ ...data, h: d })
     })
     socket.on("s", d => {
       humiditeSol(d);
-      // setData({ ...data, s: d })
     })
     socket.on("t", d => {
       temperature(d);
-      // setData({ ...data, t: d })
     })
     socket.on("l", d => {
       luminosite(d);
-      // setData({ ...data, l: d })
     })
 
   })
@@ -51,10 +51,10 @@ const App = () => {
 
       settranscript(tt)
 
-      let camon = /(lance|allume) (la)? caméra/
-      let camoff = /(arrête|éteins) (la)? caméra/
-      let arron = /(active|lance) (l\')?arrosage/
-      let arroff = /(désactive|arrête) (l\')?arrosage/
+      let camon = /^(lance|allume|lancer|allumer|active|activer) (la)? caméra/
+      let camoff = /^(désactiver|désactive|arrête|arrêter|éteins) (la)? caméra/
+      let arron = /^(active|activer|lance|lancer) (l\')?arrosage/
+      let arroff = /^(désactiver|désactive|arrête|arrêter) (l\')?arrosage/
 
       if (camon.test(tt)) {
         socket.emit("CAP002_ON")
@@ -68,15 +68,12 @@ const App = () => {
         speaker.speak(utterThis)
       } else if (arroff.test(tt)) {
         socket.emit("CAP001_OFF")
-        setArrosage(false)
         utterThis.text = "arrosage arrêté"
         speaker.speak(utterThis)
       } else if (arron.test(tt)) {
         socket.emit("CAP001_ON")
-        setArrosage(true)
         utterThis.text = "arrosage activé."
         speaker.speak(utterThis)
-        console.log("okokok");
       } else {
         utterThis.text = ask(tt)
         ask(tt) !== null && speaker.speak(utterThis)
@@ -84,6 +81,8 @@ const App = () => {
       recon.stop()
     }
   })
+
+
 
 
   function goListen() {
@@ -110,18 +109,19 @@ const App = () => {
           </g>
           <g id="details" transform="translate(20,160)">
             <text x="0" y="0" fill="white" style={{ fontSize: "12px" }}>
-              <tspan x="0" dy="1.2em">Le niveau d'eau permet de </tspan>
-              <tspan x="0" dy="1.2em">favoriser l'arrosage de la terre.</tspan>
-              <tspan x="0" dy="1.2em">favoriser l'arrosage de la terre.</tspan>
+              <tspan x="0" dy="1.2em">L'eau est une ressource qui</tspan>
+              <tspan x="0" dy="1.2em">permet de rafraichir l'espace.</tspan>
+              <tspan x="0" dy="1.2em">de la plante</tspan>
             </text>
             <text transform="translate(0, 50)" x="0" y="0" fill="yellow" style={{ fontSize: "12px" }}>
-              <tspan x="0" dy="1.2em">Le niveau d'eau permet de </tspan>
-              <tspan x="0" dy="1.2em">favoriser l'arrosage de la terre.</tspan>
+              <tspan x="0" dy="1.2em">Inferieur à 20% = Mauvais</tspan>
+              <tspan x="0" dy="1.2em">Entre 20 et 80% = Moyen</tspan>
+              <tspan x="0" dy="1.2em">Superieure à 80% = Bon</tspan>
             </text>
-            <g transform="translate(0,130)"  >
+            {/* <g transform="translate(0,130)">
               <rect height="15" width="15" fill="yellow" opacity="0.5"></rect>
               <text transform="translate(20,15)" fill="white">Bon</text>
-            </g>
+            </g> */}
           </g>
         </svg>
         <svg width="300" height="350" id="humiditeSol" >
@@ -135,19 +135,20 @@ const App = () => {
             <rect id="bar" y="0" height="0" width="40" opacity="0.7" ></rect>
           </g>
           <g id="details" transform="translate(20,150)">
-            <text x="0" y="0" fill="white" style={{ fontSize: "12px" }}>
-              <tspan x="0" dy="1.2em">Le niveau d'eau permet de </tspan>
-              <tspan x="0" dy="1.2em">favoriser l'arrosage de la terre.</tspan>
-              <tspan x="0" dy="1.2em">favoriser l'arrosage de la terre.</tspan>
+          <text x="0" y="0" fill="white" style={{ fontSize: "12px" }}>
+              <tspan x="0" dy="1.2em">L'humidité du sol est un facteur</tspan>
+              <tspan x="0" dy="1.2em">de croissance de la plante</tspan>
             </text>
             <text transform="translate(0, 50)" x="0" y="0" fill="yellow" style={{ fontSize: "12px" }}>
-              <tspan x="0" dy="1.2em">Le niveau d'eau permet de </tspan>
-              <tspan x="0" dy="1.2em">favoriser l'arrosage de la terre.</tspan>
+              <tspan x="0" dy="1.2em">Inferieur à 20% = Mauvais</tspan>
+              <tspan x="0" dy="1.2em">Entre 40% et 60% = Moyen</tspan>
+              <tspan x="0" dy="1.2em">Entre 60% et 80% = Bon</tspan>
+              <tspan x="0" dy="1.2em">Superieure à 80% = Excessive</tspan>
             </text>
-            <g transform="translate(0,130)"  >
+            {/* <g transform="translate(0,130)"  >
               <rect height="15" width="15" fill="yellow" opacity="0.5"></rect>
               <text transform="translate(20,15)" fill="white">Bon</text>
-            </g>
+            </g> */}
           </g>
         </svg>
         <svg width="300" height="350" id="humiditeAir" className="shadow-2xl">
@@ -161,19 +162,16 @@ const App = () => {
             <rect id="bar" y="0" height="40" width="0" opacity="0.7" ></rect>
           </g>
           <g id="details" transform="translate(20,150)">
-            <text x="0" y="0" fill="white" style={{ fontSize: "12px" }}>
-              <tspan x="0" dy="1.2em">Le niveau d'eau permet de </tspan>
-              <tspan x="0" dy="1.2em">favoriser l'arrosage de la terre.</tspan>
-              <tspan x="0" dy="1.2em">favoriser l'arrosage de la terre.</tspan>
-            </text>
             <text transform="translate(0, 50)" x="0" y="0" fill="yellow" style={{ fontSize: "12px" }}>
-              <tspan x="0" dy="1.2em">Le niveau d'eau permet de </tspan>
-              <tspan x="0" dy="1.2em">favoriser l'arrosage de la terre.</tspan>
+              <tspan x="0" dy="1.2em">Inferieur à 20% = Mauvais</tspan>
+              <tspan x="0" dy="1.2em">Entre 40% et 70% = Moyen</tspan>
+              <tspan x="0" dy="1.2em">Entre 70% et 80% = Bon</tspan>
+              <tspan x="0" dy="1.2em">Superieure à 80% = Excessive</tspan>
             </text>
-            <g transform="translate(0,100)"  >
+            {/* <g transform="translate(220,100)"  >
               <rect height="15" width="15" fill="yellow" opacity="0.5"></rect>
               <text transform="translate(20,15)" fill="white">Bon</text>
-            </g>
+            </g> */}
           </g>
         </svg>
         <svg width="300" height="350" className="" id="temperature">
@@ -187,19 +185,16 @@ const App = () => {
             {/* <rect id="bar" y="0" height="40" width="0" opacity="0.7" ></rect> */}
           </g>
           <g id="details" transform="translate(20,150)">
-            <text x="0" y="0" fill="white" style={{ fontSize: "12px" }}>
-              <tspan x="0" dy="1.2em">Le niveau d'eau permet de </tspan>
-              <tspan x="0" dy="1.2em">favoriser l'arrosage de la terre.</tspan>
-              <tspan x="0" dy="1.2em">favoriser l'arrosage de la terre.</tspan>
-            </text>
             <text transform="translate(0, 50)" x="0" y="0" fill="yellow" style={{ fontSize: "12px" }}>
-              <tspan x="0" dy="1.2em">Le niveau d'eau permet de </tspan>
-              <tspan x="0" dy="1.2em">favoriser l'arrosage de la terre.</tspan>
+            <tspan x="0" dy="1.2em">Inferieur à 15% = Mauvais</tspan>
+              <tspan x="0" dy="1.2em">Entre 15% et 18% = Moyen</tspan>
+              <tspan x="0" dy="1.2em">Entre 18% et 27% = Bon</tspan>
+              <tspan x="0" dy="1.2em">Superieur à 30% = Excessive</tspan>
             </text>
-            <g transform="translate(0,100)"  >
+            {/* <g transform="translate(220,100)">
               <rect height="15" width="15" fill="yellow" opacity="0.5"></rect>
               <text transform="translate(20,15)" fill="white">Bon</text>
-            </g>
+            </g> */}
           </g>
         </svg>
         <svg width="300" height="350" className="shadow-2xl" id="luminosite">
@@ -213,17 +208,25 @@ const App = () => {
             <g transform="translate(120, 30)">
               <circle id="soleil" cx="110" cy="30" r="120" fill="yellow" opacity="0" />
             </g>
-            <g transform="translate(0,130)"  >
+            {/* <g transform="translate(0,130)"  >
               <rect height="15" width="15" fill="yellow" opacity="0.5" ></rect>
               <text transform="translate(20,15)" fill="white">Bon</text>
-            </g>
+            </g> */}
           </g>
         </svg>
         {
           camera &&
-          <iframe src="http://192.168.43.231:8081" height="350" width="300"></iframe>
+         <Webcam
+        audio={false}
+        height={350}
+        screenshotFormat="image/jpeg"
+        width={300}
+        videoConstraints={videoConstraints}
+      />
         }
 
+      </div>
+      <div>
       </div>
       <div className="h-screen p-4 grid grid-cols-1 gap-10" style={{ flex: 1 }} id="action">
         {/* <img src={logoS} alt="" className="h-20 w-20" /> */}

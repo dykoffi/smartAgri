@@ -1,5 +1,4 @@
 import io from "socket.io-client"
-
 import * as d3 from "d3"
 
 let scale = d3.scaleLinear().range([0, 280]).domain([100, 0])
@@ -8,12 +7,6 @@ let scaleX = d3.scaleLinear().range([0, 270]).domain([0, 100])
 let scaleTemp = d3.scaleLinear().range([0, 270]).domain([0, 80])
 let opacityScale = d3.scaleLinear().range([0, 1]).domain([0, 550])
 let scalelight= d3.scaleLinear().range([0, 100]).domain([0, 550])
-let scaleNiveau = d3.scaleLinear().range([0, 100]).domain([16, 0])
-
-let axisL = d3.axisLeft(scale)
-    .tickSizeOuter(5)
-    .tickSizeInner(2)
-    .tickPadding(10)
 
 let color = d3.scaleLinear()
     .domain([0, 100])
@@ -53,7 +46,7 @@ export function niveau(data) {
     svg
         .select('#text')
         .transition()
-        .text(parseInt(scaleNiveau(data)))
+        .text(data)
 
     svg
         .select("#gbar")
@@ -66,7 +59,7 @@ export function niveau(data) {
         .attr("y", d => scaleY(d))
         .attr("fill", d => colorE(d))
         .transition()
-        .attr("opacity", d => d < scaleNiveau(data) ? "1" : 0.1)
+        .attr("opacity", d => d < data ? "1" : 0.1)
 }
 
 export function humiditeSol(data) {
@@ -157,4 +150,4 @@ export function luminosite(data) {
 
 
 
-export const socket = io("http://192.168.43.231:8088")
+export const socket = io("http://192.168.43.152:8088")
